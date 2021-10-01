@@ -48,13 +48,26 @@ class Position_Server:
 
 
 def check_goal(position, goal, v_x, v_y):
+    # Has the drone crossed a line perpendicular to the target position and velocity
+    v_norm = math.sqrt(v_x**2 + v_y**2)
+
+    if v_norm == 0:
+        cond = math.sqrt((position[0]-goal[0])**2 + (position[1]-goal[1])**2)
+        if cond < 0.5:
+            return False
+        return True
+
+    v = [v_x/v_norm, v_y/v_norm]
+    cond = v[0]*(goal[0]-position[0]) + v[1]*(goal[1]-position[1])
+    if cond > 0:
+        return False
     return True
 
 
 def get_path(home):
     path = []
     local = []
-    in_path = [[10, 0], [10, 10], [10, 20], [20, 20], [10, 20], [10, 10], [0, 10], [0, 0]]
+    in_path = [[0, 2], [0, 4], [0, 6], [0, 8], [2, 8]]
 
     for i in range(len(in_path)):
         local.append([in_path[i][0], in_path[i][1], default_height])
@@ -78,7 +91,8 @@ def get_path(home):
 
 async def fly_drone():
     drone = System()
-    await drone.connect(system_address="udp://:14540")
+    print("Attempting Connection")
+    await drone.connect(system_address="udp://:14539")
 
     #This waits till a mavlink based drone is connected
     async for state in drone.core.connection_state():
@@ -124,7 +138,7 @@ async def fly_drone():
                                                   position_server.home_pos.absolute_altitude_m)
         #Start the drone following the target
         await drone.follow_me.set_target_location(target)
-
+        print(local_target)
         #Follow the current target until the condition is met to continue to the next point
         following = True
         while following:
