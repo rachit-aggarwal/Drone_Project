@@ -2,8 +2,8 @@ import asyncio
 import math
 
 from mavsdk import System
-from mavsdk.follow_me import (Config, FollowMeError, TargetLocation)
-from Mission_Implementation import convertcoords
+from mavsdk.follow_me import (Config, TargetLocation)
+from FollowMe_Implementation import convertcoords
 
 default_height = 10.0   # in Meters
 follow_distance = 1.0   # in Meters, this is the distance that the drone will remain away from Target while following it
@@ -36,7 +36,7 @@ class Position_Server:
                                                             self.home_pos.latitude_deg,
                                                             self.home_pos.longitude_deg,
                                                             self.home_pos.absolute_altitude_m
-            )
+                                                            )
             return
 
     async def set_home(self):
@@ -92,7 +92,9 @@ def get_path(home):
 async def fly_drone():
     drone = System()
     print("Attempting Connection")
-    await drone.connect(system_address="udp://:14539")
+    await drone.connect(system_address="udp://:14540")
+    # await drone.connect(system_address="serial:///dev/ttyUSB0:921600")
+
 
     #This waits till a mavlink based drone is connected
     async for state in drone.core.connection_state():
@@ -132,7 +134,7 @@ async def fly_drone():
         target = TargetLocation(latitude, longitude, altitude, v_x, v_y, 0)
         local_target = convertcoords.geodetic2enu(latitude,
                                                   longitude,
-                                                  altitude+position_server.home_pos.absolute_altitude_m,
+                                                  altitude + position_server.home_pos.absolute_altitude_m,
                                                   position_server.home_pos.latitude_deg,
                                                   position_server.home_pos.longitude_deg,
                                                   position_server.home_pos.absolute_altitude_m)
