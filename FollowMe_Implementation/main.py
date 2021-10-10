@@ -3,13 +3,18 @@ import math
 
 from mavsdk import System
 from mavsdk.follow_me import (Config, TargetLocation)
-from FollowMe_Implementation import convertcoords
+import convertcoords
+
+import sys, getopt
 
 default_height = 10.0   # in Meters
 follow_distance = 1.0   # in Meters, this is the distance that the drone will remain away from Target while following it
 target_speed = 3
 direction = Config.FollowDirection.BEHIND
 responsiveness = 0.02
+
+options = "aenu:"
+long_options = ["Address", "East", "North", "Up"]
 
 
 class Position_Server:
@@ -159,5 +164,12 @@ async def fly_drone():
     await drone.action.land()
 
 if __name__ == "__main__":
+
+    argls = sys.argv[1:]
+    try:
+        arguments, values = getopt.getopt(argls, options, long_options)
+        for currarg, currval in arguments:
+            if
+
     loop = asyncio.get_event_loop()
     loop.run_until_complete(fly_drone())
