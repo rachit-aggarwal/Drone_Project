@@ -3,7 +3,7 @@ import math
 
 from mavsdk import System
 from mavsdk.follow_me import (Config, TargetLocation)
-import convertcoords
+import pymap3d as pm
 
 import sys, getopt
 
@@ -35,7 +35,7 @@ class Position_Server:
         #Run to update the current position to the latest telemetry
         async for position in self.drone.telemetry.position():
             self.cur_pos = position
-            self.cur_local_pos = convertcoords.geodetic2enu(position.latitude_deg,
+            self.cur_local_pos = pm.geodetic2enu(position.latitude_deg,
                                                             position.longitude_deg,
                                                             position.absolute_altitude_m,
                                                             self.home_pos.latitude_deg,
@@ -76,7 +76,7 @@ def get_path(home):
 
     for i in range(len(in_path)):
         local.append([in_path[i][0], in_path[i][1], default_height])
-        geo = convertcoords.enu2geodetic(in_path[i][0],
+        geo = pm.enu2geodetic(in_path[i][0],
                                          in_path[i][1],
                                          default_height + home.absolute_altitude_m,
                                          home.latitude_deg,
@@ -137,7 +137,7 @@ async def fly_drone():
     for latitude, longitude, altitude, v_x, v_y in path:
         #Create the target object and convert the coordinates into the local frame
         target = TargetLocation(latitude, longitude, altitude, v_x, v_y, 0)
-        local_target = convertcoords.geodetic2enu(latitude,
+        local_target = pm.geodetic2enu(latitude,
                                                   longitude,
                                                   altitude + position_server.home_pos.absolute_altitude_m,
                                                   position_server.home_pos.latitude_deg,
